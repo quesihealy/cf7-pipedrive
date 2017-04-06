@@ -129,10 +129,6 @@ class Cf7_Pipedrive {
 		
 		if(class_exists('WPCF7_ContactForm'))
 			$cf7_installed = true;
-		
-		if($this->cf7_pipedrive_api_key == '') {
-			add_action('admin_notices', array($this, 'no_api_key_admin_notice'));
-		}
 
 		// If it is not installed give admin warning
 		if ( !$cf7_installed ) {
@@ -140,13 +136,17 @@ class Cf7_Pipedrive {
 			return;
 		}
 
-
 		// Define Variations
 		$this->cf7_pipedrive_api_key 	= get_option( 'cf_pipedrive_api_key' );
 		$this->cf7_forms 							= $this->get_cf7_forms();
 		$this->cf7_pipedrive_forms 		= ( false != get_option( 'cf7_pipedrive_forms' ) ? get_option( 'cf7_pipedrive_forms' ) : array() );
 		$this->cf7_pipedrive_stage 		= ( false != get_option( 'cf7_pipedrive_stage' ) ? get_option( 'cf7_pipedrive_stage' ) : '' );
 		$this->cf7_pipedrive_user 		= ( false != get_option( 'cf7_pipedrive_user' ) ? get_option( 'cf7_pipedrive_user' ) : '' );
+
+		// If there is no API Key set, send a warning
+		if($this->cf7_pipedrive_api_key == '') {
+			add_action('admin_notices', array($this, 'no_api_key_admin_notice'));
+		}
 
 		// Load Admin Functions
 		if ( is_admin() ) {
@@ -172,7 +172,7 @@ class Cf7_Pipedrive {
 	 */
 	function no_api_key_admin_notice(){
 		echo '<div class="notice notice-warning is-dismissible">
-			<p>Please enter your Pipedrive API in the <a href="' . admin_url( 'options-general.php?page=cf7_pipedrive' ) . '">settings</a> to use CF7 Pipedrive Deal on Submit.</p>
+			<p>Please enter your Pipedrive API in the <a href="' . admin_url( 'admin.php?page=cf7_pipedrive' ) . '">settings</a> to use Contact Form 7 Pipedrive Integration.</p>
 			</div>';
 	}
 
@@ -236,7 +236,7 @@ class Cf7_Pipedrive {
 	 * @since 1.0
 	 */
 	public function plugin_admin_menu() {
-		add_options_page( __( 'Cf7 Pipedrive Settings', 'cf7-pipedrive' ), __( 'CF7 Pipedrive', 'cf7-pipedrive' ), 'edit_posts', $this->plugin_slug, array( $this, 'cf7_pipedrive_options' ) );
+		add_submenu_page( 'wpcf7', __( 'Pipedrive Integration Settings', 'cf7-pipedrive' ), __( 'Pipedrive Integration', 'cf7-pipedrive' ), 'manage_options', $this->plugin_slug, array( $this, 'cf7_pipedrive_options' ) );
 	}
 
 	/**
@@ -251,7 +251,7 @@ class Cf7_Pipedrive {
 	public function add_action_links( $links ) {
 		return array_merge(
 			array(
-				'settings' => '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
+				'settings' => '<a href="' . admin_url( 'admin.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
 			),
 			$links
 		);	
@@ -266,9 +266,6 @@ class Cf7_Pipedrive {
 		if ( ! current_user_can( 'edit_posts' ) )  {
 			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 		}
-
-		$this->populate_stages();
-		$this->populate_pipedrive_users();
 
 		if ( ! empty( $_POST ) && check_admin_referer( 'cf7_pipedrive', 'save_cf7_pipedrive' ) ) {
 			//add or update cf7 pipedrive API Key
@@ -311,14 +308,21 @@ class Cf7_Pipedrive {
 				}
 			}
 
-			wp_redirect( admin_url( 'options-general.php?page='.$_GET['page'].'&updated=1' ) );
+			wp_redirect( admin_url( 'admin.php?page='.$_GET['page'].'&updated=1' ) );
 
+		}
+
+		$show_full_form = false;
+		if($this->cf7_pipedrive_api_key != '') {
+			$this->populate_stages();
+			$this->populate_pipedrive_users();
+			$show_full_form = true;
 		}
 
 		?>
 		<div class="wrap">
 			<h2><?php _e( 'CF7 Pipedrive Settings', 'cf7-pipedrive' );?></h2>
-			<form method="post" action="<?php echo esc_url( admin_url( 'options-general.php?page='.$_GET['page'].'&noheader=true' ) ); ?>" enctype="multipart/form-data">
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page='.$_GET['page'].'&noheader=true' ) ); ?>" enctype="multipart/form-data">
 				<?php wp_nonce_field( 'cf7_pipedrive', 'save_cf7_pipedrive' ); ?>
 				<div class="cf7_pipedrive_form">
 					<table class="form-table" width="100%">
@@ -326,6 +330,9 @@ class Cf7_Pipedrive {
 							<th scope="row"><label for="cf7_pipedrive_api_key"><?php _e( 'Pipedrive API Key', 'cf7-pipedrive' );?></label></th>
 							<td><input type="text" name="cf7_pipedrive_api_key" id="cf7_pipedrive_api_key" maxlength="255" size="75" value="<?php echo $this->cf7_pipedrive_api_key; ?>"></td>
 						</tr>
+
+						<?php if($show_full_form) : ?>
+
 						<tr>
 							<th scope="row"><label for="cf7_pipedrive_form"><?php _e( 'Contact Form 7', 'cf7-pipedrive' );?></label><br/><small>Select the Contact Forms you want to send a deal on submission.</small></label></th>
 							<td>
@@ -334,6 +341,18 @@ class Cf7_Pipedrive {
 								<?php endforeach;?>
 							</td>
 						</tr>
+
+
+						<tr>
+							<th scope="row"><label for="cf7_pipedrive_form"><?php _e( 'Contact Form 7', 'cf7-pipedrive' );?></label><br/><small>Select the Contact Forms you want to send a deal on submission.</small></label></th>
+							<td>
+								<?php foreach ( $this->cf7_forms as $form_id => $form_title ): ?>
+								<input type="checkbox" name="cf7_pipedrive_forms[]" value="<?php echo $form_id; ?>" <?php if(in_array($form_id, $this->cf7_pipedrive_forms)) echo 'checked="checked"';?> ><label for="<php echo $form_title; ?>"><?php echo $form_title; ?></label><br>
+								<?php endforeach;?>
+							</td>
+						</tr>
+
+		
 						<tr>
 							<th scope="row"><label for="cf7_pipedrive_stage"><?php _e( 'Stage', 'cf7-pipedrive' );?></label><br/><small>Select the stage you want the customer to be placed in.</small></label></th>
 							<td>
@@ -354,6 +373,9 @@ class Cf7_Pipedrive {
 								</select>
 							</td>
 						</tr>
+
+					<?php endif; ?>
+
 					</table>
 					<p class="submit">
 						<input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes' ) ?>" />
