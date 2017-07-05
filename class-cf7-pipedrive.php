@@ -341,18 +341,7 @@ class Cf7_Pipedrive {
 								<?php endforeach;?>
 							</td>
 						</tr>
-
-
-						<tr>
-							<th scope="row"><label for="cf7_pipedrive_form"><?php _e( 'Contact Form 7', 'cf7-pipedrive' );?></label><br/><small>Select the Contact Forms you want to send a deal on submission.</small></label></th>
-							<td>
-								<?php foreach ( $this->cf7_forms as $form_id => $form_title ): ?>
-								<input type="checkbox" name="cf7_pipedrive_forms[]" value="<?php echo $form_id; ?>" <?php if(in_array($form_id, $this->cf7_pipedrive_forms)) echo 'checked="checked"';?> ><label for="<php echo $form_title; ?>"><?php echo $form_title; ?></label><br>
-								<?php endforeach;?>
-							</td>
-						</tr>
-
-		
+	
 						<tr>
 							<th scope="row"><label for="cf7_pipedrive_stage"><?php _e( 'Stage', 'cf7-pipedrive' );?></label><br/><small>Select the stage you want the customer to be placed in.</small></label></th>
 							<td>
