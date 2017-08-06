@@ -4,7 +4,7 @@ Donate link: http://everythinghealy.com/donate
 Tags: cf7, Pipedrive, Pipedrive Deal, Deal, Contact form 7
 Requires at least: 3.6
 Tested up to: 4.0
-Stable tag: 1
+Stable tag: 1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,3 +34,8 @@ This is a simple, clean, plugin with no bloat or unneeded calls that slow down y
 
 = 1.0 =
 * Initial Release. Excitement insues
+
+= 1.1 =
+* Included debug mode
+* Added Fields Settings to settings page
+* Linked settings values to submission values
