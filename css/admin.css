@@ -2,3 +2,7 @@
 {
 	max-width: 100%;
 }
+
+.pipedrive-field-label {
+	width: 500px;
+}
