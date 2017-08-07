@@ -5,7 +5,7 @@
  * @package   cf7_pipedrive
  * @author 		Lucas Healy <lucasbhealy@gmail.com>
  * @license   GPL-2.0+
- * @link      http://everythinghealy.com/cf7-pipedrive
+ * @link      http://www.everythinghealy.com/cf7-pipedrive
  */
 
 /**
@@ -365,6 +365,7 @@ class Cf7_Pipedrive {
 				}
 			</style>
 			<h2><?php _e( 'CF7 Pipedrive Settings', 'cf7-pipedrive' );?></h2>
+						<p>Have questions, comments, suggestions? This is still in beta and I'd love to hear from you at lucas@everythinghealy.com. I'll read and respond to every e-mail.</p>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page='.$_GET['page'].'&noheader=true' ) ); ?>" enctype="multipart/form-data">
 				<?php wp_nonce_field( 'cf7_pipedrive', 'save_cf7_pipedrive' ); ?>
 				<div class="cf7_pipedrive_form">
@@ -495,9 +496,6 @@ class Cf7_Pipedrive {
 							</td>
 						</tr>
 
-
-
-
 						<tr>
 							<th scope="row"><label for="cf7_pipedrive_debug_mode"><?php _e( 'Debug Mode', 'cf7-pipedrive' );?></label><br/><small>No not use on production environments. This may cause the submission message to not return.</small></label></th>
 							<td>
@@ -505,14 +503,14 @@ class Cf7_Pipedrive {
 							</td>
 						</tr>
 
-
-
 					<?php endif; ?>
 
 					</table>
+
 					<p class="submit">
 						<input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes' ) ?>" />
 					</p>
+
 				</div>
 			</form>
 			<?php
