@@ -704,17 +704,17 @@ class Cf7_Pipedrive {
 		$person_name = 'Wordpress CF7 Person';
 		$person_name_field = get_option('cf7_pipedrive_field_name_'.$submitted_form_id, '');
 		if(isset($_POST[$person_name_field])) {
-			$person_name = $_POST[$$person_name_field];
+			$person_name = $_POST[$person_name_field];
 		}
 		$person_email = '';
 		$person_email_field = get_option('cf7_pipedrive_field_email_'.$submitted_form_id, '');
 		if(isset($_POST[$person_email_field])) {
-			$person_email = $_POST[$$person_email_field];
+			$person_email = $_POST[$person_email_field];
 		}
 		$person_phone = '';
 		$person_phone_field = get_option('cf7_pipedrive_field_phone_'.$submitted_form_id, '');
 		if(isset($_POST[$person_phone_field])) {
-			$person_phone = $_POST[$$person_phone_field];
+			$person_phone = $_POST[$person_phone_field];
 		}
 
 		if($person_name == '') {
