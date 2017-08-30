@@ -8,15 +8,15 @@
  * @link      http://www.everythinghealy.com/cf7-pipedrive
  *
  * @wordpress-plugin
- * Plugin Name: 	CF7 Pipedrive Deal on Submit
+ * Plugin Name: 	CF7 Pipedrive Integration
  * Plugin URI: 		http://www.everythinghealy.com/cf7-pipedrive
- * Description: 	CF7 Pipedrive Deal on Submit is a minimal plugin that creates a Pipedrive Deal using the form information when a Contact form 7 form is successfully submitted. Enter your API key and the forms you want Deals submitted for and you're done.
- * Version: 1.1.1
- * Author: 			Lucas Healy
+ * Description: 	CF7 Pipedrive Integration is a minimal plugin that creates a Pipedrive Deal using the form information when a Contact form 7 form is successfully submitted. Enter your API key and the forms you want Deals submitted for and you're done.
+ * Version: 			1.1.2
+ * Author: 				Lucas Healy
  * Author URI: 		http://www.everythinghealy.com
  * Text Domain: 	cf7-pipedrive
- * License: 		GPL-2.0+
- * License URI:     http://www.gnu.org/licenses/gpl-2.0.txt
+ * License: 			GPL-2.0+
+ * License URI:   http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
 // If this file is called directly, abort.

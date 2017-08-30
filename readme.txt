@@ -1,19 +1,21 @@
-=== CF7 Pipedrive Deal on Submit ===
+=== CF7 Pipedrive Integration ===
 Contributors: lucasbhealy
 Tags: cf7, Pipedrive, Pipedrive Deal, Deal, Contact form 7
 Requires at least: 3.6
 Tested up to: 4.0
-Stable tag: 1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-CF7 Pipedrive Deal on Submit is a minimal plugin that creates a Pipedrive Deal using the form information when a Contact form 7 form is successfully submitted. Enter your API key and the forms you want Deals submitted for and you're done.
+CF7 Pipedrive Integration is a minimal plugin that creates a Pipedrive Deal using the form information when a Contact form 7 form is successfully submitted. Enter your API key and the forms you want Deals submitted for and you're done.
 
 == Description ==
 
-CF7 Pipedrive Deal on Submit is a minimal plugin that creates a Pipedrive Deal using the form information when a Contact form 7 form is successfully submitted. Enter your Pipedrive API key and the forms you want Deals submitted for and you're done.
+CF7 Pipedrive Integration is a minimal plugin that creates a Pipedrive Deal using the form information when a Contact form 7 form is successfully submitted. Enter your Pipedrive API key and the forms you want Deals submitted for and you're done.
 
-This is a simple, clean, plugin with no bloat or unneeded calls that slow down your site.
+This plugin makes use of Pipedrive's API by sending contact form data to their service. [Pipedrive](https://www.pipedrive.com) has their Terms of Service available [here](https://www.pipedrive.com/en/terms-of-service).
+
+Tested with Contact Form 7 4.9. Known issues with Contact Form 7 version 4.2.2 and lower.
 
 == Installation ==
 
@@ -38,3 +40,9 @@ This is a simple, clean, plugin with no bloat or unneeded calls that slow down y
 * Included debug mode
 * Added Fields Settings to settings page
 * Linked settings values to submission values
+
+= 1.1.1 =
+* Validate, Clean, and Sanitized POST data
+* Moved from CURL to Wordpress http API
+* Updated readme to include Pipedrive info and links
+* Changed name in documentation

@@ -21,7 +21,7 @@ class Cf7_Pipedrive {
 	 *
 	 * @var string
 	 */
-	const VERSION = '1.1.1';
+	const VERSION = '1.1.2';
 
 	/**
 	 * Unique identifier for plugin.
@@ -280,17 +280,22 @@ class Cf7_Pipedrive {
 		if ( ! empty( $_POST ) && check_admin_referer( 'cf7_pipedrive', 'save_cf7_pipedrive' ) ) {
 			
 			//add or update cf7 pipedrive API Key
+			$pipedrive_api_key = sanitize_text_field( $_POST['cf7_pipedrive_api_key'] );
 			if ( $this->cf7_pipedrive_api_key !== false ) {
-				update_option( 'cf_pipedrive_api_key', $_POST['cf7_pipedrive_api_key'] );
+				update_option( 'cf_pipedrive_api_key', $pipedrive_api_key );
 			} else {
-				add_option( 'cf_pipedrive_api_key', $_POST['cf7_pipedrive_api_key'], null, 'no' );
+				add_option( 'cf_pipedrive_api_key', $pipedrive_api_key, null, 'no' );
 			}
 
 			//add or update cf7 pipedrive CF7 Forms
 			if ( $this->cf7_forms !== false ) {
-				if(isset($_POST['cf7_pipedrive_forms'])) {
-					update_option( 'my_cf7_pipedrive_forms', $_POST['cf7_pipedrive_forms'] );
-					$this->cf7_pipedrive_forms = get_option('my_cf7_pipedrive_forms');
+				if( isset($_POST['cf7_pipedrive_forms']) && is_array($_POST['cf7_pipedrive_forms']) ) {
+					$cf7_pipedrive_forms = $_POST['cf7_pipedrive_forms'];
+					$cf7_pipedrive_forms = array_map('absint', $cf7_pipedrive_forms);
+					if(is_array($cf7_pipedrive_forms)) {
+						update_option( 'my_cf7_pipedrive_forms', $cf7_pipedrive_forms );
+						$this->cf7_pipedrive_forms = get_option('my_cf7_pipedrive_forms');
+					}
 				} else {
 					update_option( 'my_cf7_pipedrive_forms', array() );
 					$this->cf7_pipedrive_forms = array();
@@ -300,7 +305,8 @@ class Cf7_Pipedrive {
 			//add or update cf7 pipedrive stage
 			if ( $this->cf7_pipedrive_stage !== false ) {
 				if(isset($_POST['cf7_pipedrive_stage'])) {
-					update_option( 'my_cf7_pipedrive_stage', $_POST['cf7_pipedrive_stage'] );
+					$cf7_pipedrive_stage = absint($_POST['cf7_pipedrive_stage']);
+					update_option( 'my_cf7_pipedrive_stage', $cf7_pipedrive_stage );
 					$this->cf7_pipedrive_stage = get_option('my_cf7_pipedrive_stage');
 				} else {
 					update_option( 'my_cf7_pipedrive_stage', array() );
@@ -311,8 +317,9 @@ class Cf7_Pipedrive {
 			//add or update cf7 pipedrive stage
 			if ( $this->cf7_pipedrive_user !== false ) {
 				if(isset($_POST['cf7_pipedrive_user'])) {
-					update_option( 'my_cf7_pipedrive_user', $_POST['cf7_pipedrive_user'] );
-					$this->cf7_pipedrive_user = $_POST['cf7_pipedrive_user'];
+					$cf7_pipedrive_user = absint( $_POST['cf7_pipedrive_user'] );
+					update_option( 'my_cf7_pipedrive_user', $cf7_pipedrive_user );
+					$this->cf7_pipedrive_user = $cf7_pipedrive_user;
 				} else {
 					update_option( 'my_cf7_pipedrive_user', array() );
 					$this->cf7_pipedrive_user = array();
@@ -323,7 +330,8 @@ class Cf7_Pipedrive {
 			$this->cf7_pipedrive_fields = array();
 			foreach ($_POST as $key => $value) {
 				if(strpos($key, 'cf7_pipedrive_field') !== false) {
-					update_option($key, $_POST[$key]);
+					$option = sanitize_text_field( $_POST[$key] );
+					update_option($key, $option);
 					$this->cf7_pipedrive_fields[$key] = $value;
 				} else {
 					update_option( $key, array() );
@@ -332,8 +340,11 @@ class Cf7_Pipedrive {
 
 			// Add or update debug mode
 			if(isset($_POST['cf7_pipedrive_debug_mode'])) {
-				update_option( 'cf7_pipedrive_debug_mode', $_POST['cf7_pipedrive_debug_mode'] );
-				$this->cf7_pipedrive_debug_mode = get_option('cf7_pipedrive_debug_mode');
+				if($_POST['cf7_pipedrive_debug_mode'] == 'yes') {
+					$cf7_pipedrive_debug_mode = sanitize_text_field( $_POST['cf7_pipedrive_debug_mode'] );
+					update_option( 'cf7_pipedrive_debug_mode', $cf7_pipedrive_debug_mode );
+					$this->cf7_pipedrive_debug_mode = get_option('cf7_pipedrive_debug_mode');
+				}
 			} else {
 				update_option( 'cf7_pipedrive_debug_mode', 'no' );
 				$this->cf7_pipedrive_debug_mode = 'no';
@@ -365,7 +376,7 @@ class Cf7_Pipedrive {
 				}
 			</style>
 			<h2><?php _e( 'CF7 Pipedrive Settings', 'cf7-pipedrive' );?></h2>
-						<p>Have questions, comments, suggestions? This is still in beta and I'd love to hear from you at lucas@everythinghealy.com. I'll read and respond to every e-mail.</p>
+			<p>Have questions, comments, suggestions? This is still in beta and I'd love to hear from you at lucas@everythinghealy.com. I'll read and respond to every e-mail.</p>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page='.$_GET['page'].'&noheader=true' ) ); ?>" enctype="multipart/form-data">
 				<?php wp_nonce_field( 'cf7_pipedrive', 'save_cf7_pipedrive' ); ?>
 				<div class="cf7_pipedrive_form">
@@ -681,19 +692,11 @@ class Cf7_Pipedrive {
 
 	public function set_submission_values() {
 
-		$pipedrive_fields = array();
-
 		// If no form ID is available then lets get out.
-		if(!isset($_POST['_wpcf7']))
+		if(!isset($_POST['_wpcf7']) && intval($_POST['_wpcf7']))
 			return false;
 
-		$submitted_form_id = $_POST['_wpcf7'];
-
-		foreach ($_POST as $key => $value) {
-			if(strpos($key, 'pipedrive') !== false) {
-				$pipedrive_fields[$key] = $value;
-			}
-		}
+		$submitted_form_id = intval($_POST['_wpcf7']);
 
 		// main data about the organization
 		$this->organization = array(
@@ -704,17 +707,17 @@ class Cf7_Pipedrive {
 		$person_name = 'Wordpress CF7 Person';
 		$person_name_field = get_option('cf7_pipedrive_field_name_'.$submitted_form_id, '');
 		if(isset($_POST[$person_name_field])) {
-			$person_name = $_POST[$person_name_field];
+			$person_name = sanitize_text_field( $_POST[$person_name_field] );
 		}
 		$person_email = '';
 		$person_email_field = get_option('cf7_pipedrive_field_email_'.$submitted_form_id, '');
 		if(isset($_POST[$person_email_field])) {
-			$person_email = $_POST[$person_email_field];
+			$person_email = sanitize_text_field( $_POST[$person_email_field] );
 		}
 		$person_phone = '';
 		$person_phone_field = get_option('cf7_pipedrive_field_phone_'.$submitted_form_id, '');
 		if(isset($_POST[$person_phone_field])) {
-			$person_phone = $_POST[$person_phone_field];
+			$person_phone = sanitize_text_field( $_POST[$person_phone_field] );
 		}
 
 		if($person_name == '') {
@@ -755,28 +758,24 @@ class Cf7_Pipedrive {
 	}
 
 	function make_pipedrive_request($type, $request_type = 'post', $return_object = false) {
-
+	
 		$url = "https://api.pipedrive.com/v1/".$type."?api_token=" . $this->cf7_pipedrive_api_key;
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
+	
 		if($request_type == 'post') {
-
 			// Try type without the plural S if there is no data.
 			if(!isset($this->$type) && substr($type, -1) == 's') {
 				$type = substr($type, 0, -1);
 			}
-
-			curl_setopt($ch, CURLOPT_POST, true);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $this->$type);
+			$output = wp_remote_post( $url, array( 'body' => $this->$type ) );
+		} else {
+			$output = wp_remote_get( $url );
 		}
-		$output = curl_exec($ch);
-		$info = curl_getinfo($ch);
-		curl_close($ch);
+
 		// create an array from the data that is sent back from the API
-		$result = json_decode($output, 1);
-		
+		if(isset($output['body'])) {
+			$result = json_decode($output['body'], 1);
+		}
+
 		// Report Errors
 		if(isset($result['error'])) {
 			if($this->cf7_pipedrive_debug_mode == 'yes') {
