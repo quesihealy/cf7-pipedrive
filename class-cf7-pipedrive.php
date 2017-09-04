@@ -371,9 +371,6 @@ class Cf7_Pipedrive {
 					display: block;
 					margin-top: 12px;
 				}
-				.cf7_pipedrive_field_value {
-					display: none;
-				}
 			</style>
 			<h2><?php _e( 'CF7 Pipedrive Settings', 'cf7-pipedrive' );?></h2>
 			<p>Have questions, comments, suggestions? This is still in beta and I'd love to hear from you at lucas@everythinghealy.com. I'll read and respond to every e-mail.</p>
