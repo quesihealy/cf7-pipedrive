@@ -400,89 +400,29 @@ class Cf7_Pipedrive {
 						<tr>
 							<th scope="row"><label for="cf7_pipedrive_form_fields"><?php _e( 'Contact Form 7 Fields', 'cf7-pipedrive' );?></label><br/><small>Select the Fields you want included in the deal.</small></label></th>
 							<td>
-								<label class='pipedrive-field-label'>Person Name:</label>
-								<?php 
-								foreach ( $this->cf7_forms as $form_id => $form_title ): ?>
-									<div class='cf7_pipedrive_field_value field_value_<?php echo $form_id; ?>'>
-										<span><?php echo $form_title; ?>:</span>
-										<select name="cf7_pipedrive_field_name_<?php echo $form_id; ?>" id="cf7_pipedrive_field_name_<?php echo $form_id; ?>">
-											<option value="cf7-user">-</option>
-											<?php 
-											$form_fields = $this->populate_pipedrive_form_fields($form_id);
-											foreach($form_fields as $form_field) : 
-												if($form_field->name != '') : 
-													$name_value = 'cf7_pipedrive_field_name_'.$form_id ?>
-													<option value="<?php echo $form_field->name; ?>" <?php selected( $this->$name_value, $form_field->name ); ?>><?php echo $form_field->name; ?></option>
-													<?php
-												endif;
-											endforeach;
-											?>
-										</select>
-									</div>
-								<?php endforeach;?>
-								<br/>
-								<label class='pipedrive-field-label'>Person Email:</label>
-								<?php 
-								foreach ( $this->cf7_forms as $form_id => $form_title ): ?>
-									<div class='cf7_pipedrive_field_value field_value_<?php echo $form_id; ?>'>
-										<span><?php echo $form_title; ?>:</span>
-										<select name="cf7_pipedrive_field_email_<?php echo $form_id; ?>" id="cf7_pipedrive_field_email_<?php echo $form_id; ?>">
-											<option value="">-</option>
-											<?php 
-											$form_fields = $this->populate_pipedrive_form_fields($form_id);
-											foreach($form_fields as $form_field) : 
-												if($form_field->name != '') : 
-													$email_value = 'cf7_pipedrive_field_email_'.$form_id; ?>
-													<option value="<?php echo $form_field->name; ?>" <?php selected( $this->$email_value, $form_field->name ); ?>><?php echo $form_field->name; ?></option>
-													<?php
-												endif;
-											endforeach;
-											?>
-										</select>
-									</div>
-								<?php endforeach;?>
-								<br/>
-								<label class='pipedrive-field-label'>Person Phone:</label>
-								<?php 
-								foreach ( $this->cf7_forms as $form_id => $form_title ): ?>
-									<div class='cf7_pipedrive_field_value field_value_<?php echo $form_id; ?>'>
-										<span><?php echo $form_title; ?>:</span>
-										<select name="cf7_pipedrive_field_phone_<?php echo $form_id; ?>" id="cf7_pipedrive_field_phone_<?php echo $form_id; ?>">
-											<option value="">-</option>
-											<?php 
-											$form_fields = $this->populate_pipedrive_form_fields($form_id);
-											foreach($form_fields as $form_field) : 
-												if($form_field->name != '') : 
-													$name_value = 'cf7_pipedrive_field_phone_'.$form_id; ?>
-													<option value="<?php echo $form_field->name; ?>" <?php selected( $this->$name_value, $form_field->name ); ?>><?php echo $form_field->name; ?></option>
-													<?php
-												endif;
-											endforeach;
-											?>
-										</select>
-									</div>
-								<?php endforeach;?>
-								<br/>
-								<label class='pipedrive-field-label'>Deal Title:</label>
-								<?php 
-								foreach ( $this->cf7_forms as $form_id => $form_title ): ?>
-									<div class='cf7_pipedrive_field_value field_value_<?php echo $form_id; ?>'>
-										<span><?php echo $form_title; ?>:</span>
-										<select name="cf7_pipedrive_field_title_<?php echo $form_id; ?>" id="cf7_pipedrive_field_title_<?php echo $form_id; ?>">
-											<option value="">-</option>
-											<?php 
-											$form_fields = $this->populate_pipedrive_form_fields($form_id);
-											foreach($form_fields as $form_field) : 
-												if($form_field->name != '') :
-													$title_value = 'cf7_pipedrive_field_title_'.$form_id; ?>
-													<option value="<?php echo $form_field->name; ?>" <?php selected( $this->$title_value, $form_field->name ); ?>><?php echo $form_field->name; ?></option>
-													<?php
-												endif;
-											endforeach;
-											?>
-										</select>
-									</div>
-								<?php endforeach;?>
+                <?php
+                $fields = $this->make_pipedrive_request('personFields', 'get', true);
+                ?>
+                <?php foreach($fields['data'] as $field): ?>
+                    <br/>
+                    <label class='pipedrive-field-label'><?=$field['name']?></label>
+                    <?php foreach ( $this->cf7_forms as $form_id => $form_title ): ?>
+                    <div class='cf7_pipedrive_field_value field_value_<?php echo $form_id; ?>'>
+                        <span><?php echo $form_title; ?>:</span>
+                        <select name="cf7_pipedrive_field_<?=$field['key']?>_<?php echo $form_id; ?>" id="cf7_pipedrive_field_<?=$field['key']?>_<?php echo $form_id; ?>">
+                            <option value="">-</option>
+                            <?php 
+                            $form_fields = $this->populate_pipedrive_form_fields($form_id);
+                            foreach($form_fields as $form_field) : 
+                                if($form_field->name != '') : 
+                                    $name_value = 'cf7_pipedrive_field_'.$field["key"].'_'.$form_id; ?>
+                                <option value="<?php echo $form_field->name; ?>" <?php selected( $this->$name_value, $form_field->name ); ?>><?php echo $form_field->name; ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>                      
 							</td>
 						</tr>
 
@@ -607,12 +547,12 @@ class Cf7_Pipedrive {
 	}
 
 	public function contact_form_field_keys() {
-		return array(
-			'cf7_pipedrive_field_name_',
-			'cf7_pipedrive_field_email_',
-			'cf7_pipedrive_field_phone_',
-			'cf7_pipedrive_field_title_',
-		);
+    $fields = $this->make_pipedrive_request('personFields', 'get', true);
+    $formFields = [];
+    foreach($fields['data'] as $field) {
+      $formFields[] = 'cf7_pipedrive_field_'.$field['key'].'_';
+    }
+    return $formFields;
 	}
 
 	/**
@@ -704,34 +644,24 @@ class Cf7_Pipedrive {
 		);
 
 		// main data about the person. org_id is added later dynamically
-		$person_name = 'Wordpress CF7 Person';
-		$person_name_field = get_option('cf7_pipedrive_field_name_'.$submitted_form_id, '');
-		if(isset($_POST[$person_name_field])) {
-			$person_name = sanitize_text_field( $_POST[$person_name_field] );
-		}
-		$person_email = '';
-		$person_email_field = get_option('cf7_pipedrive_field_email_'.$submitted_form_id, '');
-		if(isset($_POST[$person_email_field])) {
-			$person_email = sanitize_text_field( $_POST[$person_email_field] );
-		}
-		$person_phone = '';
-		$person_phone_field = get_option('cf7_pipedrive_field_phone_'.$submitted_form_id, '');
-		if(isset($_POST[$person_phone_field])) {
-			$person_phone = sanitize_text_field( $_POST[$person_phone_field] );
-		}
-
-		if($person_name == '') {
-			if($this->cf7_pipedrive_debug_mode == 'yes') {
-				trigger_error('PipeDrive Error: Could not find mandatory field person name');
-			}
-			return false;
-		}
-
-		$this->person = array(
-			'name' => $person_name,
-			'email' => $person_email,
-			'phone' => $person_phone,
-		);
+		$fields = $this->make_pipedrive_request('personFields', 'get', true);
+    
+    $person = [];
+    foreach($fields['data'] as $field) {
+      $field_name = get_option('cf7_pipedrive_field_'.$field['key'].'_'.$submitted_form_id, '');
+      if (isset($_POST[$field_name])) {
+        $person[$field['key']] = sanitize_text_field( $_POST[$field_name] );
+      }
+    }
+    
+    if(!isset($person['name']) || $person['name'] == '') {
+        if($this->cf7_pipedrive_debug_mode == 'yes') {
+            trigger_error('PipeDrive Error: Could not find mandatory field person name');
+        }
+        return false;
+    }
+    
+    $this->person = $person;
 
 		$deal_title = 'Wordpress CF7 Submission';
 		$deal_title_field = get_option('cf7_pipedrive_field_title_'.$submitted_form_id, '');
