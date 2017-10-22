@@ -3,7 +3,7 @@ Contributors: lucasbhealy
 Tags: cf7, Pipedrive, Pipedrive Deal, Deal, Contact form 7
 Requires at least: 3.6
 Tested up to: 4.0
-Stable tag: 1.1.2
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,7 @@ CF7 Pipedrive Integration is a minimal plugin that creates a Pipedrive Deal usin
 
 This plugin makes use of Pipedrive's API by sending contact form data to their service. [Pipedrive](https://www.pipedrive.com) has their Terms of Service available [here](https://www.pipedrive.com/en/terms-of-service).
 
-Tested with Contact Form 7 4.9. Known issues with Contact Form 7 version 4.2.2 and lower.
+Tested with Contact Form 7 4.9. Known issues with Contact Form 7 version 4.3 and lower. Possible issues with version older than 4.9.
 
 == Installation ==
 
@@ -46,3 +46,8 @@ Tested with Contact Form 7 4.9. Known issues with Contact Form 7 version 4.2.2 a
 * Moved from CURL to Wordpress http API
 * Updated readme to include Pipedrive info and links
 * Changed name in documentation
+
+= 1.2.1 =
+* Fixed issue with JS not being loaded in admin and dropdowns not displaying
+* Added message to my call for emails to check CF7 version before emailing
+* Added warning for possible issues with older CF7 versions

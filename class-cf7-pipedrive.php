@@ -21,7 +21,7 @@ class Cf7_Pipedrive {
 	 *
 	 * @var string
 	 */
-	const VERSION = '1.1.2';
+	const VERSION = '1.2.2';
 
 	/**
 	 * Unique identifier for plugin.
@@ -376,7 +376,7 @@ class Cf7_Pipedrive {
 				}
 			</style>
 			<h2><?php _e( 'CF7 Pipedrive Settings', 'cf7-pipedrive' );?></h2>
-			<p>Have questions, comments, suggestions? This is still in beta and I'd love to hear from you at lucas@everythinghealy.com. I'll read and respond to every e-mail.</p>
+			<p>Have questions, comments, suggestions? This is still in beta and I'd love to hear from you at lucas@everythinghealy.com. If you are having technical issues please ensure you have version 4.9 of contact form 7 or later before reaching out. I'll read and respond to every e-mail.</p>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page='.$_GET['page'].'&noheader=true' ) ); ?>" enctype="multipart/form-data">
 				<?php wp_nonce_field( 'cf7_pipedrive', 'save_cf7_pipedrive' ); ?>
 				<div class="cf7_pipedrive_form">
@@ -633,7 +633,7 @@ class Cf7_Pipedrive {
 	public function enqueue_scripts() {}
 	
 	public function admin_enqueue_scripts($hook) {
-		if('contact_page_cf7_pipedrive' == $hook) {
+		if(isset($_GET['page']) && $_GET['page'] == 'cf7_pipedrive') {
 			wp_enqueue_script( 'cf7_pipedrive_admin_js', plugins_url( '/js/admin.js', __FILE__ ), array(), rand(0,999) );
 		}
 	}
