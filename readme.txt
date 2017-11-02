@@ -3,7 +3,7 @@ Contributors: lucasbhealy
 Tags: cf7, Pipedrive, Pipedrive Deal, Deal, Contact form 7
 Requires at least: 3.6
 Tested up to: 4.0
-Stable tag: 1.2.2
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,3 +51,6 @@ Tested with Contact Form 7 4.9. Known issues with Contact Form 7 version 4.3 and
 * Fixed issue with JS not being loaded in admin and dropdowns not displaying
 * Added message to my call for emails to check CF7 version before emailing
 * Added warning for possible issues with older CF7 versions
+
+= 1.3 =
+* Huge refactor
