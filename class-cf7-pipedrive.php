@@ -13,21 +13,21 @@
  * @author  Lucas Healy <lucasbhealy@gmail.com>
  */
 class Cf7_Pipedrive {
-	
+
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
-	 * 
+	 *
 	 * @since 1.0
 	 *
 	 * @var string
 	 */
-	const VERSION = '1.1.2';
+	const VERSION = '1.2.2';
 
 	/**
 	 * Unique identifier for plugin.
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $plugin_slug = 'cf7_pipedrive';
@@ -36,7 +36,7 @@ class Cf7_Pipedrive {
 	 * Instance of this class.
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var object
 	 */
 	protected static $instance = null;
@@ -45,7 +45,7 @@ class Cf7_Pipedrive {
 	 * Stores CF7 Pipedrive API key
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $cf7_pipedrive_api_key = '';
@@ -54,7 +54,7 @@ class Cf7_Pipedrive {
 	 * Stores CF7 for for creating deals @TODO
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $cf7_pipedrive_forms = array();
@@ -63,7 +63,7 @@ class Cf7_Pipedrive {
 	 * Stores CF7 for for creating deals @TODO
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $cf7_forms = array();
@@ -72,7 +72,7 @@ class Cf7_Pipedrive {
 	 * Stores CF7 for for creating deals @TODO
 	 *
 	 * @since 1.1
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $cf7_pipedrive_debug_mode = 'no';
@@ -81,7 +81,7 @@ class Cf7_Pipedrive {
 	 * Stores Pipedrive organization data
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $organization;
@@ -90,7 +90,7 @@ class Cf7_Pipedrive {
 	 * Stores Pipedrive person data
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $person;
@@ -99,7 +99,7 @@ class Cf7_Pipedrive {
 	 * Stores Pipedrive deal data
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $deal;
@@ -108,7 +108,7 @@ class Cf7_Pipedrive {
 	 * Stores pipeline data
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var array
 	 *
 	 * @todo create populate_pipelines function
@@ -119,7 +119,7 @@ class Cf7_Pipedrive {
 	 * Stores stage data
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $stages;
@@ -135,7 +135,7 @@ class Cf7_Pipedrive {
 
 		// Check if CF7, dependant, is installed
 		$cf7_installed = false;
-		
+
 		if(class_exists('WPCF7_ContactForm'))
 			$cf7_installed = true;
 
@@ -156,7 +156,7 @@ class Cf7_Pipedrive {
 		// If there is no API Key set, send a warning
 		if($this->cf7_pipedrive_api_key == '') {
 			add_action('admin_notices', array($this, 'no_api_key_admin_notice'));
-		} 
+		}
 
 		// Load Admin Functions
 		if ( is_admin() ) {
@@ -166,7 +166,7 @@ class Cf7_Pipedrive {
 			// Add an action link pointing to the settings page.
 			$plugin_basename = plugin_basename( plugin_dir_path( __FILE__ ) . $this->plugin_slug . '.php' );
 			add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
-		} 
+		}
 
 		// Load front end function
 		if( $cf7_installed ) {
@@ -178,7 +178,7 @@ class Cf7_Pipedrive {
 	 * Return notice string
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @return string admin notice if CF7 is not installed
 	 */
 	function no_api_key_admin_notice(){
@@ -191,7 +191,7 @@ class Cf7_Pipedrive {
 	 * Return notice string
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @return string admin notice if no API key entered
 	 */
 	function no_cf7_admin_notice(){
@@ -204,7 +204,7 @@ class Cf7_Pipedrive {
 	 * Return boolean
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @return boolean If a deal was created
 	 */
 	public function init_pipedrive($submission) {
@@ -227,7 +227,7 @@ class Cf7_Pipedrive {
 	 * Return an instance of this class.
 	 *
 	 * @since 1.0
-	 * 
+	 *
 	 * @return object A single instance of this class.
 	 */
 	public static function get_instance() {
@@ -242,7 +242,7 @@ class Cf7_Pipedrive {
 
 	/**
 	 * Register the settings menu for this plugin into the WordPress Settings menu.
-	 * 
+	 *
 	 * @since 1.0
 	 */
 	public function plugin_admin_menu() {
@@ -251,7 +251,7 @@ class Cf7_Pipedrive {
 
 	/**
 	 * Add settings action link to the plugins page.
-	 * 
+	 *
 	 * @param array $links
 	 *
 	 * @since 1.0
@@ -264,12 +264,12 @@ class Cf7_Pipedrive {
 				'settings' => '<a href="' . admin_url( 'admin.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
 			),
 			$links
-		);	
+		);
 	}
 
 	/**
 	 * Render the settings page for this plugin.
-	 * 
+	 *
 	 * @since 1.0
 	 */
 	public function cf7_pipedrive_options() {
@@ -278,7 +278,7 @@ class Cf7_Pipedrive {
 		}
 
 		if ( ! empty( $_POST ) && check_admin_referer( 'cf7_pipedrive', 'save_cf7_pipedrive' ) ) {
-			
+
 			//add or update cf7 pipedrive API Key
 			$pipedrive_api_key = sanitize_text_field( $_POST['cf7_pipedrive_api_key'] );
 			if ( $this->cf7_pipedrive_api_key !== false ) {
@@ -374,9 +374,19 @@ class Cf7_Pipedrive {
 				.cf7_pipedrive_field_value {
 					display: none;
 				}
+        .select_add{
+          display: flex;
+        }
+        .btn{
+          width: 50px;
+          height: 27px;
+          background-color: black;
+          border-radius: 100px;
+          cursor: pointer;
+        }
 			</style>
 			<h2><?php _e( 'CF7 Pipedrive Settings', 'cf7-pipedrive' );?></h2>
-			<p>Have questions, comments, suggestions? This is still in beta and I'd love to hear from you at lucas@everythinghealy.com. I'll read and respond to every e-mail.</p>
+			<p>Have questions, comments, suggestions? This is still in beta and I'd love to hear from you at lucas@everythinghealy.com. If you are having technical issues please ensure you have version 4.9 of contact form 7 or later before reaching out. I'll read and respond to every e-mail.</p>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page='.$_GET['page'].'&noheader=true' ) ); ?>" enctype="multipart/form-data">
 				<?php wp_nonce_field( 'cf7_pipedrive', 'save_cf7_pipedrive' ); ?>
 				<div class="cf7_pipedrive_form">
@@ -403,7 +413,20 @@ class Cf7_Pipedrive {
                 <?php
                 $fields = $this->make_pipedrive_request('personFields', 'get', true);
                 ?>
+
+                <p>Add Field</p>
+                <div class="select_add">
+                  <select class="add" name="" id="add_new">
+                    <?php foreach($fields['data'] as $field): ?>
+                      <option value="pipedrive_<?=$field['key']?>"><?=$field['name']?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <div class="btn"></div>
+                </div>
+
+
                 <?php foreach($fields['data'] as $field): ?>
+                  <div class="fields_forms_pipedrive" id="pipedrive_<?=$field['key']?>" style="display: none">
                     <br/>
                     <label class='pipedrive-field-label'><?=$field['name']?></label>
                     <?php foreach ( $this->cf7_forms as $form_id => $form_title ): ?>
@@ -411,10 +434,10 @@ class Cf7_Pipedrive {
                         <span><?php echo $form_title; ?>:</span>
                         <select name="cf7_pipedrive_field_<?=$field['key']?>_<?php echo $form_id; ?>" id="cf7_pipedrive_field_<?=$field['key']?>_<?php echo $form_id; ?>">
                             <option value="">-</option>
-                            <?php 
+                            <?php
                             $form_fields = $this->populate_pipedrive_form_fields($form_id);
-                            foreach($form_fields as $form_field) : 
-                                if($form_field->name != '') : 
+                            foreach($form_fields as $form_field) :
+                                if($form_field->name != '') :
                                     $name_value = 'cf7_pipedrive_field_'.$field["key"].'_'.$form_id; ?>
                                 <option value="<?php echo $form_field->name; ?>" <?php selected( $this->$name_value, $form_field->name ); ?>><?php echo $form_field->name; ?></option>
                                 <?php endif; ?>
@@ -422,7 +445,8 @@ class Cf7_Pipedrive {
                             </select>
                         </div>
                     <?php endforeach; ?>
-                <?php endforeach; ?>                      
+                  </div>
+                <?php endforeach; ?>
 							</td>
 						</tr>
 
@@ -469,11 +493,11 @@ class Cf7_Pipedrive {
 			?>
 		</div>
 		<?php
-	}	
+	}
 
 	/**
 	 * Returns list of Popup Place
-	 * 
+	 *
 	 * @since 1.0
 	 *
 	 * @return array Popup Place
@@ -549,10 +573,10 @@ class Cf7_Pipedrive {
 	public function contact_form_field_keys() {
     $fields = $this->make_pipedrive_request('personFields', 'get', true);
     $formFields = [];
-    foreach($fields['data'] as $field) {
-      $formFields[] = 'cf7_pipedrive_field_'.$field['key'].'_';
-    }
-    return $formFields;
+      foreach($fields['data'] as $field) {
+        $formFields[] = 'cf7_pipedrive_field_'.$field['key'].'_';
+      }
+      return $formFields;
 	}
 
 	/**
@@ -571,19 +595,19 @@ class Cf7_Pipedrive {
 	 * @since 1.0
 	 */
 	public function enqueue_scripts() {}
-	
+
 	public function admin_enqueue_scripts($hook) {
-		if('contact_page_cf7_pipedrive' == $hook) {
+		if(isset($_GET['page']) && $_GET['page'] == 'cf7_pipedrive') {
 			wp_enqueue_script( 'cf7_pipedrive_admin_js', plugins_url( '/js/admin.js', __FILE__ ), array(), rand(0,999) );
 		}
 	}
 	/**
 	 * Print popup html code
-	 *	 
+	 *
 	 * @since 1.0
 	 */
 	public function process_submission($submission){
-		
+
 		// Get Values from form submission
 		$submission_values_added = $this->set_submission_values();
 
@@ -596,7 +620,7 @@ class Cf7_Pipedrive {
 
 		// try adding an organization and get back the ID
 		// $org_id = make_pipedrive_request('organization');
-		$org_id = false; 
+		$org_id = false;
 
 		// if the organization was added successfully add the person and link it to the organization - But for now I'm leaving out organizations.
 		// Sorry. Good news is if you're a developer all the code to add an org is here.
@@ -607,7 +631,7 @@ class Cf7_Pipedrive {
 
 			// if the person was added successfully add the deal and link it to the organization and the person
 			if ($person_id) {
-			 
+
 				// $this->deal['org_id'] = $org_id; // Not yet
 				$this->deal['person_id'] = $person_id;
 				// try adding a person and get back the ID
@@ -622,7 +646,7 @@ class Cf7_Pipedrive {
 				// echo "There was a problem with adding the person!";
 				return false;
 			}
-		 
+
 		} else {
 			// echo "There was a problem with adding the organization!";
 			return false;
@@ -645,29 +669,29 @@ class Cf7_Pipedrive {
 
 		// main data about the person. org_id is added later dynamically
 		$fields = $this->make_pipedrive_request('personFields', 'get', true);
-    
+
     $person = [];
     foreach($fields['data'] as $field) {
-      $field_name = get_option('cf7_pipedrive_field_'.$field['key'].'_'.$submitted_form_id, '');
-      if (isset($_POST[$field_name])) {
-        $person[$field['key']] = sanitize_text_field( $_POST[$field_name] );
-      }
+        $field_name = get_option('cf7_pipedrive_field_'.$field['key'].'_'.$submitted_form_id, '');
+        if (isset($_POST[$field_name])) {
+            $person[$field['key']] = sanitize_text_field( $_POST[$field_name] );
+        }
     }
-    
+
     if(!isset($person['name']) || $person['name'] == '') {
         if($this->cf7_pipedrive_debug_mode == 'yes') {
             trigger_error('PipeDrive Error: Could not find mandatory field person name');
         }
         return false;
     }
-    
+
     $this->person = $person;
 
-		$deal_title = 'Wordpress CF7 Submission';
+		$deal_title = $_SERVER['SERVER_NAME'];
 		$deal_title_field = get_option('cf7_pipedrive_field_title_'.$submitted_form_id, '');
-		if(isset($_POST[$deal_title_field])) {
-			$deal_title = $_POST[$deal_title_field];
-		}
+		// if(isset($_POST[$deal_title_field])) {
+		// 	$deal_title = $_POST[$deal_title_field];
+		// }
 
 		if($deal_title == '') {
 			if($this->cf7_pipedrive_debug_mode == 'yes') {
@@ -688,9 +712,9 @@ class Cf7_Pipedrive {
 	}
 
 	function make_pipedrive_request($type, $request_type = 'post', $return_object = false) {
-	
+
 		$url = "https://api.pipedrive.com/v1/".$type."?api_token=" . $this->cf7_pipedrive_api_key;
-	
+
 		if($request_type == 'post') {
 			// Try type without the plural S if there is no data.
 			if(!isset($this->$type) && substr($type, -1) == 's') {
@@ -701,10 +725,10 @@ class Cf7_Pipedrive {
 			$output = wp_remote_get( $url );
 		}
 
-		// create an array from the data that is sent back from the API
+    // create an array from the data that is sent back from the API
 		if(isset($output['body'])) {
 			$result = json_decode($output['body'], 1);
-		}
+    }
 
 		// Report Errors
 		if(isset($result['error'])) {
