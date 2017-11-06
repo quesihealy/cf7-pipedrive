@@ -378,11 +378,9 @@ class Cf7_Pipedrive {
           display: flex;
         }
         .btn{
-          width: 50px;
-          height: 27px;
-          background-color: black;
-          border-radius: 100px;
-          cursor: pointer;
+					padding-left: 10px;
+					padding-top: 2px;
+					cursor: pointer;
         }
 			</style>
 			<h2><?php _e( 'CF7 Pipedrive Settings', 'cf7-pipedrive' );?></h2>
@@ -421,8 +419,22 @@ class Cf7_Pipedrive {
                       <option value="pipedrive_<?=$field['key']?>"><?=$field['name']?></option>
                     <?php endforeach; ?>
                   </select>
-                  <div class="btn"></div>
+                  <div class="btn">
+										<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+										<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+										 width="25px" height="25px" viewBox="0 0 612 612" style="enable-background:new 0 0 612 612;" xml:space="preserve">
+										 <g>
+											<g>
+												<polygon points="319.909,486.818 319.909,319.909 486.818,319.909 486.818,292.091 319.909,292.091 319.909,125.182
+													292.091,125.182 292.091,292.091 125.182,292.091 125.182,319.909 292.091,319.909 292.091,486.818 		"/>
+												<path d="M612,306C612,137.004,474.995,0,306,0C137.004,0,0,137.004,0,306c0,168.995,137.004,306,306,306
+													C474.995,612,612,474.995,612,306z M27.818,306C27.818,152.36,152.36,27.818,306,27.818S584.182,152.36,584.182,306
+													S459.64,584.182,306,584.182S27.818,459.64,27.818,306z"/>
+											</g>
+										</g>
+									</svg>
                 </div>
+              </div>
 
 
                 <?php foreach($fields['data'] as $field): ?>
