@@ -1,8 +1,19 @@
 (function ( $ ) {
 	"use strict";
 	$(function () {
-		$( document ).ready(function() {	
+		$( document ).ready(function() {
 
+      $('.btn').click(function (event) {
+       var value =  $('#add_new').val();
+       $('#'+value).show();
+      });
+
+      $('.fields_forms_pipedrive').each(function () {
+        var selectField = $(this).find('select').val();
+        if (selectField) {
+          $(this).show();
+        }
+      });
 
 			var checkbox_values = $('input[name="cf7_pipedrive_forms[]"]:checked').map(function() {
 			    return this.value;
