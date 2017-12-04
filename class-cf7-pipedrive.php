@@ -21,16 +21,7 @@ class Cf7_Pipedrive {
 	 *
 	 * @var string
 	 */
-	const VERSION = '1.2.2';
-
-	/**
-	 * Unique identifier for plugin.
-	 *
-	 * @since 1.0
-	 *
-	 * @var string
-	 */
-	protected $plugin_slug = 'cf7_pipedrive';
+	const VERSION = '1.3';
 
 	/**
 	 * Instance of this class.
@@ -42,13 +33,13 @@ class Cf7_Pipedrive {
 	protected static $instance = null;
 
 	/**
-	 * Stores CF7 Pipedrive API key
+	 * Initialize the plugin by loading scripts and styles for admin page
 	 *
-	 * @since 1.0
+tresolve all conflicts	 * @since 1.0
 	 *
 	 * @var string
 	 */
-	protected $cf7_pipedrive_api_key = '';
+	private function __construct() {
 
 	/**
 	 * Stores CF7 for for creating deals @TODO
@@ -220,6 +211,7 @@ class Cf7_Pipedrive {
 			return $cf7_sends_deal;
 		} else {
 			return $cf7_sends_deal;
+
 		}
 	}
 
@@ -231,7 +223,6 @@ class Cf7_Pipedrive {
 	 * @return object A single instance of this class.
 	 */
 	public static function get_instance() {
-
 		// If the single instance hasn't been set, set it now.
 		if ( null == self::$instance ) {
 			self::$instance = new self;
@@ -513,71 +504,19 @@ class Cf7_Pipedrive {
 	 * @since 1.0
 	 *
 	 * @return array Popup Place
+
 	 */
-	public function get_cf7_forms() {
-
-		// Get all the contact forms
-		$args = array(
-			'posts_per_page' => 50,
-			'orderby' => 'title',
-			'order' => 'ASC',
-			);
-
-		$items = WPCF7_ContactForm::find( $args );
-		foreach ($items as $contact_form) {
-			$this->cf7_forms[$contact_form->id()] = $contact_form->title();
+	public function send_to_pipedrive($submission) {
+		$cf7_sends_deal = false;
+		if(in_array($submission->id(), $admin_settings->cf7_pipedrive_forms)) {
+			$cf7_sends_deal = true;
 		}
-		return $this->cf7_forms;
 
-	}
-
-	public function populate_stages() {
-		$response = $this->make_pipedrive_request('stages', 'get', true);
-		if(isset($response['data'])) {
-			$this->stages = array();
-			foreach ($response['data'] as $data) {
-				if($data['name'] != NULL)
-					$this->stages[] = $data;
-			}
-			return;
-		}
-		return array();
-	}
-
-	public function populate_pipedrive_users() {
-		$response = $this->make_pipedrive_request('users', 'get', true);
-		if(isset($response['data'])) {
-			$this->pipedrive_users = array();
-			foreach ($response['data'] as $data) {
-				if($data['name'] != NULL)
-					$this->pipedrive_users[] = $data;
-			}
-			return;
-		}
-		return array();
-	}
-
-	public function populate_pipedrive_form_fields($form_id) {
-		$contact_form = WPCF7_ContactForm::get_instance($form_id);
-		$manager = WPCF7_FormTagsManager::get_instance();
-
-		$scanned_form_tags = $manager->scan( $contact_form->prop( 'form' ) );
-		// $filtered_form_tags = $manager->filter( $scanned_form_tags, NULL );
-
-		return $scanned_form_tags;
-	}
-
-	public function populate_cf7_pipedrive_field_values() {
-		if(!isset($this->cf7_forms)) {
-			$this->get_cf7_forms();
-		}
-		$contact_form_field_keys = $this->contact_form_field_keys();
-
-		foreach ($this->cf7_forms as $form_id => $value) {
-			foreach($contact_form_field_keys as $field_key) {
-				$new_property = $field_key . $form_id;
-				$this->$new_property = get_option($new_property);
-			}
+		if($cf7_sends_deal) {
+			$this->process_submission($submission);
+			return $cf7_sends_deal;
+		} else {
+			return $cf7_sends_deal;
 		}
 
 	}
@@ -614,6 +553,7 @@ class Cf7_Pipedrive {
 		}
 	}
 	/**
+
 	 * Print popup html code
 	 *
 	 * @since 1.0
@@ -624,7 +564,7 @@ class Cf7_Pipedrive {
 		$submission_values_added = $this->set_submission_values();
 
 		if($submission_values_added == false) {
-			if($this->cf7_pipedrive_debug_mode == 'yes') {
+			if($admin_settings->cf7_pipedrive_debug_mode == 'yes') {
 				trigger_error('PipeDrive Error: Could not add submission values');
 			}
 			return false;
@@ -639,7 +579,7 @@ class Cf7_Pipedrive {
 		if ($org_id || 0 == 0) {
 			// $person['org_id'] = $org_id;
 			// try adding a person and get back the ID
-			$person_id = $this->make_pipedrive_request('persons');
+			$person_id = $this->pipedrive->add_person($this->person);
 
 			// if the person was added successfully add the deal and link it to the organization and the person
 			if ($person_id) {
@@ -647,7 +587,7 @@ class Cf7_Pipedrive {
 				// $this->deal['org_id'] = $org_id; // Not yet
 				$this->deal['person_id'] = $person_id;
 				// try adding a person and get back the ID
-				$deal_id = $this->make_pipedrive_request('deals');
+				$deal_id = $this->pipedrive->add_deal($this->deal);
 
 				if ($deal_id) {
 					// echo "Deal was added successfully!";
@@ -700,13 +640,14 @@ class Cf7_Pipedrive {
     $this->person = $person;
 
 		$deal_title = $_SERVER['SERVER_NAME'];
+
 		$deal_title_field = get_option('cf7_pipedrive_field_title_'.$submitted_form_id, '');
 		// if(isset($_POST[$deal_title_field])) {
 		// 	$deal_title = $_POST[$deal_title_field];
 		// }
 
 		if($deal_title == '') {
-			if($this->cf7_pipedrive_debug_mode == 'yes') {
+			if($admin_settings->cf7_pipedrive_debug_mode == 'yes') {
 				trigger_error('PipeDrive Error: Could not find mandatory field deal title');
 			}
 			return false;
@@ -715,8 +656,8 @@ class Cf7_Pipedrive {
 		// main data about the deal. person_id and org_id is added later dynamically
 		$this->deal = array(
 			'title' => $deal_title,
-			'stage_id' => ( null !== $this->cf7_pipedrive_stage ? $this->cf7_pipedrive_stage : '' ),
-			'user_id' => ( null !== $this->cf7_pipedrive_user ? $this->cf7_pipedrive_user : '' ),
+			'stage_id' => ( null !== $admin_settings->cf7_pipedrive_stage ? $admin_settings->cf7_pipedrive_stage : '' ),
+			'user_id' => ( null !== $admin_settings->cf7_pipedrive_user ? $admin_settings->cf7_pipedrive_user : '' ),
 		);
 
 		return true;
