@@ -1,8 +1,12 @@
-.sp_content
-{
+.sp_content {
 	max-width: 100%;
 }
 
 .pipedrive-field-label {
 	width: 500px;
+}
+
+.cf7_pipedrive_field_value select {
+	min-width: 200px;
+	max-width: 100%;
 }

@@ -21,7 +21,7 @@ class Cf7_Pipedrive {
 	 *
 	 * @var string
 	 */
-	const VERSION = '1.3';
+	const VERSION = '1.3.1';
 
 	/**
 	 * Instance of this class.
@@ -44,11 +44,11 @@ class Cf7_Pipedrive {
 		require_once plugin_dir_path( __FILE__ ) . '/class/class-cf7-pipedrive-pipedrive-api.php';
 
 		// Load Admin Settings
-		$admin_settings = Cf7_Pipedrive_Admin_Settings::get_instance();
+		$this->admin_settings = Cf7_Pipedrive_Admin_Settings::get_instance();
 
 		// Load front end function
-		if( $admin_settings->cf7_installed && $admin_settings->cf7_pipedrive_api_key != '' ) {
-			$this->pipedrive = new Cf7_Pipedrive_Pipedrive_API($admin_settings->cf7_pipedrive_api_key);
+		if( $this->admin_settings->cf7_installed && $this->admin_settings->cf7_pipedrive_api_key != '' ) {
+			$this->pipedrive = new Cf7_Pipedrive_Pipedrive_API($this->admin_settings->cf7_pipedrive_api_key);
 			add_action( 'wpcf7_mail_sent', array( $this, 'send_to_pipedrive' ) );
 		}
 	}
@@ -69,7 +69,6 @@ class Cf7_Pipedrive {
 		return self::$instance;
 	}
 
-
 	/**
 	 * Return boolean
 	 *
@@ -79,15 +78,11 @@ class Cf7_Pipedrive {
 	 */
 	public function send_to_pipedrive($submission) {
 		$cf7_sends_deal = false;
-		if(in_array($submission->id(), $admin_settings->cf7_pipedrive_forms)) {
+		if(in_array($submission->id(), $this->admin_settings->cf7_pipedrive_forms)) {
 			$cf7_sends_deal = true;
 		}
-
 		if($cf7_sends_deal) {
 			$this->process_submission($submission);
-			return $cf7_sends_deal;
-		} else {
-			return $cf7_sends_deal;
 		}
 	}
 
@@ -97,117 +92,102 @@ class Cf7_Pipedrive {
 	 * @since 1.0
 	 */
 	public function process_submission($submission){
-		
-		// Get Values from form submission
-		$submission_values_added = $this->set_submission_values();
-
-		if($submission_values_added == false) {
-			if($admin_settings->cf7_pipedrive_debug_mode == 'yes') {
-				trigger_error('PipeDrive Error: Could not add submission values');
-			}
-			return false;
-		}
-
-		// @TODO: Set it up so orgs can be added
-		$org_id = false; 
-
-		// if the organization was added successfully add the person and link it to the organization - But for now I'm leaving out organizations.
-		// Sorry. Good news is if you're a developer all the code to add an org is here.
-		if ($org_id || 0 == 0) {
-			// $person['org_id'] = $org_id;
-			// try adding a person and get back the ID
-			$person_id = $this->pipedrive->add_person($this->person);
-
-			// if the person was added successfully add the deal and link it to the organization and the person
-			if ($person_id) {
-			 
-				// $this->deal['org_id'] = $org_id; // Not yet
-				$this->deal['person_id'] = $person_id;
-				// try adding a person and get back the ID
-				$deal_id = $this->pipedrive->add_deal($this->deal);
-
-				if ($deal_id) {
-					// echo "Deal was added successfully!";
-					return true;
-				}
-
-			} else {
-				// echo "There was a problem with adding the person!";
-				return false;
-			}
-		 
-		} else {
-			// echo "There was a problem with adding the organization!";
-			return false;
-		}
-
-	}
-
-	public function set_submission_values() {
 
 		// If no form ID is available then lets get out.
 		if(!isset($_POST['_wpcf7']) && intval($_POST['_wpcf7']))
 			return false;
 
+		$submission_values = $this->get_submission_values();
+
+		if(!empty($submission_values['organization'])) {
+			$organization_id = $this->pipedrive->add_organization($submission_values['organization']);
+		}
+		if(!empty($submission_values['person'])) {
+			$person_id = $this->pipedrive->add_person($submission_values['person']);
+		}
+
+		if(isset($submission_values['deal']['org_id']) && $submission_values['deal']['org_id'] == 'yes' && $organization_id) {
+			$submission_values['deal']['org_id'] = $organization_id;
+		}
+		if(isset($submission_values['deal']['person_id']) && $submission_values['deal']['person_id'] == 'yes' && $person_id) {
+			$submission_values['deal']['person_id'] = $person_id;
+		}
+
+		if(!empty($submission_values['deal'])) {
+			$deal_id = $this->pipedrive->add_deal($submission_values['deal']);
+		}
+
+	}
+
+	public function get_submission_values() {
+		$submission_values = $this->get_default_submission_values();
 		$submitted_form_id = intval($_POST['_wpcf7']);
+		$form_meta = get_post_meta($submitted_form_id);
+		foreach ($form_meta as $key => $meta) {
+			if(isset($meta[0]) && $meta[0] != '') {
+				$data = $meta[0];
+				if(isset($_POST[$data])) {
+				
+					if(strpos($key, 'person_') === 0) {
+						$pipedrive_key = str_replace('person_', '', $key);
+						if($_POST[$data] != '') {
+							$submission_values['person'][$pipedrive_key] = $_POST[$data];
+						}
+					}
+					if(strpos($key, 'organization_') === 0) {
+						$pipedrive_key = str_replace('organization_', '', $key);
+						if($_POST[$data] != '') {
+							$submission_values['organization'][$pipedrive_key] = $_POST[$data];
+						}
+					}
+					if(strpos($key, 'deal_') === 0) {
+						$pipedrive_key = str_replace('deal_', '', $key);
+						if($_POST[$data] != '') {
+							$submission_values['deal'][$pipedrive_key] = $_POST[$data];
+						}
+					}
 
-		// main data about the organization
-		$this->organization = array(
-			// I'm keeping this as so for now. Maybe add the functionality for organization later.
-		);
-
-		// main data about the person. org_id is added later dynamically
-		$person_name = 'Wordpress CF7 Person';
-		$person_name_field = get_option('cf7_pipedrive_field_name_'.$submitted_form_id, '');
-		if(isset($_POST[$person_name_field])) {
-			$person_name = sanitize_text_field( $_POST[$person_name_field] );
-		}
-		$person_email = '';
-		$person_email_field = get_option('cf7_pipedrive_field_email_'.$submitted_form_id, '');
-		if(isset($_POST[$person_email_field])) {
-			$person_email = sanitize_text_field( $_POST[$person_email_field] );
-		}
-		$person_phone = '';
-		$person_phone_field = get_option('cf7_pipedrive_field_phone_'.$submitted_form_id, '');
-		if(isset($_POST[$person_phone_field])) {
-			$person_phone = sanitize_text_field( $_POST[$person_phone_field] );
-		}
-
-		if($person_name == '') {
-			if($admin_settings->cf7_pipedrive_debug_mode == 'yes') {
-				trigger_error('PipeDrive Error: Could not find mandatory field person name');
+				}
 			}
-			return false;
 		}
 
-		$this->person = array(
-			'name' => $person_name,
-			'email' => $person_email,
-			'phone' => $person_phone,
+		// People to attach to deals
+		if(isset($form_meta['attach_to_person'][0]) && $form_meta['attach_to_person'][0] == 'yes') {
+			$submission_values['deal']['person_id'] = 'yes';
+		}
+		if(isset($form_meta['attach_to_organization'][0]) && $form_meta['attach_to_organization'][0] == 'yes') {
+			$submission_values['deal']['org_id'] = 'yes';
+		}
+
+		// Pipedrive Fields that are not in the CF7 form input
+		if(isset($form_meta['person_owner_id'][0]) && $form_meta['person_owner_id'][0] != '') {
+			$submission_values['person']['owner_id'] = $form_meta['person_owner_id'][0];
+		}
+		if(isset($form_meta['organization_owner_id'][0]) && $form_meta['organization_owner_id'][0] != '') {
+			$submission_values['organization']['owner_id'] = $form_meta['organization_owner_id'][0];
+		}
+		if(isset($form_meta['deal_user_id'][0]) && $form_meta['deal_user_id'][0] != '') {
+			$submission_values['deal']['user_id'] = $form_meta['deal_user_id'][0];
+		}
+		if(isset($form_meta['deal_stage_id'][0]) && $form_meta['deal_stage_id'][0] != '') {
+			$submission_values['deal']['stage_id'] = $form_meta['deal_stage_id'][0];
+		}
+
+		return $submission_values;
+	}
+
+	public function get_default_submission_values() {
+		return array(
+			'person' => array(
+				'name' => 'Default Person Name',
+				),
+			'organization' => array(
+				'name' => 'Default Org Name',
+				),
+			'deal' => array(
+				'title' => 'Wordpress Form Submission',
+				),
 		);
-
-		$deal_title = 'Wordpress CF7 Submission';
-		$deal_title_field = get_option('cf7_pipedrive_field_title_'.$submitted_form_id, '');
-		if(isset($_POST[$deal_title_field])) {
-			$deal_title = $_POST[$deal_title_field];
-		}
-
-		if($deal_title == '') {
-			if($admin_settings->cf7_pipedrive_debug_mode == 'yes') {
-				trigger_error('PipeDrive Error: Could not find mandatory field deal title');
-			}
-			return false;
-		}
-
-		// main data about the deal. person_id and org_id is added later dynamically
-		$this->deal = array(
-			'title' => $deal_title,
-			'stage_id' => ( null !== $admin_settings->cf7_pipedrive_stage ? $admin_settings->cf7_pipedrive_stage : '' ),
-			'user_id' => ( null !== $admin_settings->cf7_pipedrive_user ? $admin_settings->cf7_pipedrive_user : '' ),
-		);
-
-		return true;
-
 	}
 
 }
