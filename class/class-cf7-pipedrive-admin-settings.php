@@ -407,6 +407,8 @@ class Cf7_Pipedrive_Admin_Settings {
 		foreach($pipedrive_deal_fields as $pipedrive_deal_field) {
 			if(isset($desired_fields[$pipedrive_deal_field['key']])) {
 				$deal_fields[$pipedrive_deal_field['key']] = $desired_fields[$pipedrive_deal_field['key']];
+			} else {
+				$deal_fields[$pipedrive_deal_field['key']] = array('api_key' => $pipedrive_deal_field['key'], 'display_name' => $pipedrive_deal_field['name']);
 			}
 		}
 
@@ -441,6 +443,8 @@ class Cf7_Pipedrive_Admin_Settings {
 		foreach($pipedrive_person_fields as $pipedrive_person_field) {
 			if(isset($desired_fields[$pipedrive_person_field['key']])) {
 				$person_fields[$pipedrive_person_field['key']] = $desired_fields[$pipedrive_person_field['key']];
+			} else {
+				$person_fields[$pipedrive_person_field['key']] = array('api_key' => $pipedrive_person_field['key'], 'display_name' => $pipedrive_person_field['name']);
 			}
 		}
 
@@ -516,6 +520,8 @@ class Cf7_Pipedrive_Admin_Settings {
 		foreach($pipedrive_organization_fields as $pipedrive_organization_field) {
 			if(isset($desired_fields[$pipedrive_organization_field['key']])) {
 				$organization_fields[$pipedrive_organization_field['key']] = $desired_fields[$pipedrive_organization_field['key']];
+			} else {
+				$organization_fields[$pipedrive_organization_field['key']] = array('api_key' => $pipedrive_organization_field['key'], 'display_name' => $pipedrive_organization_field['name']);
 			}
 		}
 
